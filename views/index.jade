@@ -1,0 +1,41 @@
+extends layout
+
+block content
+  
+  .jumbotron
+    h1= title
+  p Welcome to #{title}
+
+  button#oauthButton(class="btn btn-default btn-lg") Sign In to Dropbox
+  script(type="text/javascript").
+    $('#oauthButton').click(function(evt){
+      
+      if('#{request_token}'){
+        window.location = "https://www.dropbox.com/1/oauth/authorize?oauth_token=#{request_token.oauth_token}&oauth_callback=https://dropboxstoragedemo.azurewebsites.net";
+      }
+      
+      
+    });
+    
+    $.get("https://dropboxstoragedemo.azurewebsites.net/photos", function(data){
+      
+        for(var i in data){
+          console.log(data[i]);
+          console.log(data[i].path);
+          document.getElementById("photoparagraph").innerHTML = document.getElementById("photoparagraph").innerHTML + '<p>' + data[i].path + '</p>';
+          document.getElementById("photoparagraph").innerHTML = document.getElementById("photoparagraph").innerHTML + '<img src=\"' + data[i].link + '\"/>';
+          console.log('inner html = ' + document.getElementById("photoparagraph").innerHTML);
+        }
+      
+      })
+      .fail(function(err){
+        console.log(err);
+      }); 
+  
+  form(action="/photos", method="post", enctype="multipart/form-data")
+    input(type="text", class="form-control", name="filename")
+    input(type="file", class="btn btn-default btn-md" name="uploadImage")
+    input(type="submit", class="btn btn-default btn-md", value="Submit")
+    
+  h3 Current Photos
+  div#photoparagraph
